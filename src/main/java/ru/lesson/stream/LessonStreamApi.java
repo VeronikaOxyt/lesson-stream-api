@@ -3,8 +3,9 @@ package ru.lesson.stream;
 import ru.lesson.stream.dto.Employee;
 import ru.lesson.stream.dto.PositionType;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import static java.util.stream.Collectors.*;
+
 
 public class LessonStreamApi {
 
@@ -14,7 +15,10 @@ public class LessonStreamApi {
      * Важно: Необходимо учесть, что List<Employee> employees может содержать дублирующие записи.
      */
     public List<Employee> task1(List<Employee> employees) {
-        return null;
+        return employees.stream()
+                .filter(employee -> employee.getRating() > 50)
+                .distinct()
+                .collect(toList());
     }
 
     /**
@@ -23,7 +27,11 @@ public class LessonStreamApi {
      * У которых рейтинг {@link Employee#getRating()} меньше 50.
      */
     public List<String> task2(List<Employee> employees) {
-        return null;
+        return employees.stream()
+                .filter(employee -> employee.getRating() < 50)
+                .distinct()
+                .map(employee -> employee.getName() + "=" + employee.getRating())
+                .collect(toList());
     }
 
     /**
@@ -31,7 +39,11 @@ public class LessonStreamApi {
      * Получить средний рейтнг всех сотрудников.
      */
     public double task3(List<Employee> employees) {
-        return 0.0;
+        return employees.stream()
+                .distinct()
+                .mapToDouble(Employee::getRating)
+                .average()
+                .getAsDouble();
     }
 
     /**
@@ -42,7 +54,11 @@ public class LessonStreamApi {
      * Необходимо устранить дублирование.
      */
     public List<Employee> task4(List<List<Employee>> employeeDepartments) {
-        return null;
+        return employeeDepartments.stream()
+                .flatMap(Collection::stream)
+                .distinct()
+                .sorted(Comparator.comparingInt(Employee::getRating).reversed())
+                .collect(toList());
     }
 
     /**
@@ -61,7 +77,10 @@ public class LessonStreamApi {
         if (number <= 0) {
             throw new IllegalArgumentException(Integer.toString(number));
         }
-        return null;
+        return employees.stream()
+                .filter(employee -> employee.getId() > ((number == 1) ? 0 : (number - 1) * size))
+                .limit(size)
+                .collect(toList());
     }
 
     /**
@@ -72,7 +91,10 @@ public class LessonStreamApi {
      * Пример результата: [Ivan, Olga, John]
      */
     public String task6(List<Employee> employees) {
-        return null;
+        return employees.stream()
+                .distinct()
+                .map(Employee :: getName)
+                .collect(joining( ", ", "[", "]"));
     }
 
     /**
@@ -82,7 +104,10 @@ public class LessonStreamApi {
      * Если дубли существуют - вернуть true, если дублей нет - вернуть false
      */
     public boolean task7(List<Employee> employees) {
-        return false;
+        return employees.size() > employees.stream()
+                .map(Employee :: getName)
+                .distinct()
+                .count();
     }
 
     /**
@@ -91,7 +116,9 @@ public class LessonStreamApi {
      * должности сотрудника {@link Employee#getPositionType()}
      */
     public Map<PositionType, Double> task8(List<Employee> employees) {
-        return null;
+        return employees.stream()
+                .collect(groupingBy(Employee::getPositionType,
+                        averagingDouble(Employee::getRating)));
     }
 
     /**
@@ -102,7 +129,8 @@ public class LessonStreamApi {
      * Сотрудник является эффективным, если его рейтинг больше 50.
      */
     public Map<Boolean, Long> task9(List<Employee> employees) {
-        return null;
+        return employees.stream()
+                .collect(groupingBy(employee -> employee.getRating() > 50, counting()));
     }
 
     /**
@@ -113,7 +141,9 @@ public class LessonStreamApi {
      * Сотрудник является эффективным, если его рейтинг больше 50.
      */
     public Map<Boolean, String> task10(List<Employee> employees) {
-        return null;
+        return employees.stream()
+                .collect(groupingBy(employee -> employee.getRating() > 50,
+                        mapping(Employee :: getName, joining( ", "))));
     }
 
 }
